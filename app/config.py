@@ -90,7 +90,7 @@ class Settings:
 
     # Local diagnostics / remediation scope.
     disk_path: str = "/"
-    cleanup_dirs: tuple[str, ...] = ("/tmp/cloudops360",)  # noqa: S108 - dedicated demo dir
+    cleanup_dirs: tuple[str, ...] = ("/tmp/cloudops360",)  # noqa: S108  # nosec B108
     cleanup_extensions: tuple[str, ...] = (".tmp", ".log", ".gz", ".old")
     cleanup_min_age_hours: float = 24.0
     cleanup_max_files: int = 100

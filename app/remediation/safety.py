@@ -18,7 +18,7 @@ PROTECTED_PATHS = frozenset(
     Path(p)
     for p in (
         "/", "/bin", "/boot", "/dev", "/etc", "/home", "/lib", "/lib32", "/lib64", "/media",
-        "/mnt", "/opt", "/proc", "/root", "/run", "/sbin", "/srv", "/sys", "/tmp", "/usr",  # noqa: S108 -- protected path, never used for temporary file creation
+        "/mnt", "/opt", "/proc", "/root", "/run", "/sbin", "/srv", "/sys", "/tmp", "/usr",  # noqa: S108  # nosec B108
         "/var", "/var/lib", "/var/log", "/Users",
     )
 )  # fmt: skip  # noqa: S108 -- /tmp is intentionally a protected path
