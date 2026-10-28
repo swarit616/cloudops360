@@ -1,0 +1,12 @@
+# Runtime dependencies (ranges keep the project installable without hand-pinning every patch)
+fastapi>=0.115,<1.0
+uvicorn[standard]>=0.30,<1.0
+pydantic>=2.7,<3.0
+psutil>=5.9.8,<8.0
+prometheus-client>=0.20,<1.0
+boto3>=1.34,<2.0
+azure-identity>=1.17,<2.0
+azure-mgmt-compute>=32.0,<40.0
+azure-mgmt-network>=26.0,<40.0
+azure-mgmt-resource>=23.1,<30.0
+azure-mgmt-monitor>=6.0,<9.0

@@ -1,0 +1,9 @@
+# EXAMPLE values. Copy to terraform.tfvars (git-ignored) and edit.
+location     = "eastus"
+project_name = "cloudops360-example"
+enable_vm    = true
+
+# Required: paste your SSH public key (never a private key)
+admin_ssh_public_key = "ssh-ed25519 AAAA... you@example"
+
+# allowed_ssh_cidrs = ["203.0.113.10/32"]

@@ -1,0 +1,17 @@
+# OPTIONAL: copy to docker-compose.override.yml (git-ignored) to give the API container
+# read-only access to cloud CLI credentials instead of putting keys in .env.
+#
+#   cp docker-compose.override.example.yml docker-compose.override.yml
+#   docker compose up -d --build
+#
+# Prefer a dedicated, least-privilege read-only identity (see docs/aws.md, docs/azure.md).
+services:
+  cloudops-api:
+    environment:
+      AWS_PROFILE: cloudops360-readonly
+      AWS_SHARED_CREDENTIALS_FILE: /home/cloudops/.aws/credentials
+      AWS_CONFIG_FILE: /home/cloudops/.aws/config
+      AZURE_CONFIG_DIR: /home/cloudops/.azure
+    volumes:
+      - ${HOME}/.aws:/home/cloudops/.aws:ro
+      - ${HOME}/.azure:/home/cloudops/.azure:ro

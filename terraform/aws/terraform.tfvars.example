@@ -1,0 +1,7 @@
+# EXAMPLE values. Copy to terraform.tfvars (git-ignored) and edit.
+region       = "us-east-1"
+project_name = "cloudops360-example"
+enable_ec2   = true
+
+# Prefer SSM Session Manager. If you need SSH, use your own address, never 0.0.0.0/0:
+# allowed_ssh_cidrs = ["203.0.113.10/32"]

@@ -1,0 +1,148 @@
+# CloudOps360 local stack: API + Prometheus + Grafana + Node Exporter.
+# Everything binds to 127.0.0.1 only. Start with:  docker compose up -d --build
+name: cloudops360
+
+services:
+  cloudops-api:
+    build:
+      context: .
+    image: cloudops360:local
+    container_name: cloudops-api
+    restart: unless-stopped
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      DRY_RUN: ${DRY_RUN:-true}
+      REMEDIATION_API_KEY: ${REMEDIATION_API_KEY:-}
+      CPU_THRESHOLD: ${CPU_THRESHOLD:-85}
+      MEMORY_THRESHOLD: ${MEMORY_THRESHOLD:-85}
+      DISK_THRESHOLD: ${DISK_THRESHOLD:-85}
+      LOAD_THRESHOLD: ${LOAD_THRESHOLD:-1.5}
+      DISK_PATH: ${DISK_PATH:-/}
+      CLEANUP_DIRS: ${CLEANUP_DIRS:-/tmp/cloudops360}
+      CLEANUP_EXTENSIONS: ${CLEANUP_EXTENSIONS:-.tmp,.log,.gz,.old}
+      CLEANUP_MIN_AGE_HOURS: ${CLEANUP_MIN_AGE_HOURS:-24}
+      CLEANUP_MAX_FILES: ${CLEANUP_MAX_FILES:-100}
+      ALLOWED_SERVICES: ${ALLOWED_SERVICES:-cloudops-demo}
+      RESTART_VERIFY_DELAY_SECONDS: ${RESTART_VERIFY_DELAY_SECONDS:-2}
+      CLOUD_CACHE_TTL_SECONDS: ${CLOUD_CACHE_TTL_SECONDS:-60}
+      CLOUD_REFRESH_SECONDS: ${CLOUD_REFRESH_SECONDS:-60}
+      # Cloud credentials are optional. Empty values simply mean "not configured".
+      AWS_ENABLED: ${AWS_ENABLED:-true}
+      AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION:-us-east-1}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN:-}
+      AZURE_ENABLED: ${AZURE_ENABLED:-true}
+      AZURE_SUBSCRIPTION_ID: ${AZURE_SUBSCRIPTION_ID:-}
+      AZURE_TENANT_ID: ${AZURE_TENANT_ID:-}
+      AZURE_CLIENT_ID: ${AZURE_CLIENT_ID:-}
+      AZURE_CLIENT_SECRET: ${AZURE_CLIENT_SECRET:-}
+    ports:
+      - "127.0.0.1:8002:8000"
+    read_only: true
+    tmpfs:
+      - /tmp:uid=10001,gid=10001
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - cloudops-net
+
+  node-exporter:
+    image: prom/node-exporter:v1.8.2
+    container_name: cloudops-node-exporter
+    restart: unless-stopped
+    command:
+      - "--path.rootfs=/host"
+      - "--collector.filesystem.mount-points-exclude=^/(dev|proc|sys|var/lib/docker/.+|run/.+)($$|/)"
+    volumes:
+      - /:/host:ro
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:9100/metrics"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - cloudops-net
+
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    container_name: cloudops-prometheus
+    restart: unless-stopped
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=7d"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "127.0.0.1:9090:9090"
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:9090/-/healthy"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    depends_on:
+      - cloudops-api
+      - node-exporter
+    networks:
+      - cloudops-net
+
+  grafana:
+    image: grafana/grafana:11.3.0
+    container_name: cloudops-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/cloudops360.json
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "127.0.0.1:3000:3000"
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:3000/api/health || curl -fsS http://127.0.0.1:3000/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    networks:
+      - cloudops-net
+
+networks:
+  cloudops-net:
+    driver: bridge
+
+volumes:
+  prometheus-data:
+  grafana-data:

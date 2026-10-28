@@ -1,0 +1,70 @@
+# Thresholds below match the application defaults (CPU/MEMORY/DISK 85%, load 1.5 per core).
+# If you change CPU_THRESHOLD etc. in .env, adjust these expressions too (or compare against
+# the exported cloudops_threshold metric).
+groups:
+  - name: cloudops360-host
+    rules:
+      - alert: HighCPU
+        expr: cloudops_cpu_percent > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU utilization ({{ $value | printf \"%.1f\" }}%)"
+          description: "CPU has been above 85% for 5 minutes. Check GET /api/diagnostics for top processes."
+
+      - alert: HighMemory
+        expr: cloudops_memory_percent > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory utilization ({{ $value | printf \"%.1f\" }}%)"
+          description: "Memory has been above 85% for 5 minutes. Check top memory consumers and swap usage."
+
+      - alert: HighDiskUsage
+        expr: cloudops_disk_percent > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Filesystem {{ $labels.mountpoint }} is {{ $value | printf \"%.1f\" }}% full"
+          description: "Run POST /api/remediation/dry-run to preview the safe cleanup."
+
+      - alert: HighLoad
+        expr: cloudops_load_per_core > 1.5
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High load per core ({{ $value | printf \"%.2f\" }})"
+          description: "1-minute load per CPU core has exceeded 1.5 for 10 minutes."
+
+      - alert: ServiceDown
+        expr: cloudops_service_up == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service {{ $labels.service }} is down"
+          description: "An allow-listed service is inactive or failed."
+
+  - name: cloudops360-availability
+    rules:
+      - alert: HostDown
+        expr: up{job=~"cloudops-api|node-exporter"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.job }} ({{ $labels.instance }}) is down"
+          description: "Prometheus could not scrape the target for 1 minute."
+
+      - alert: CloudOpsScrapeFailing
+        expr: cloudops_scrape_success == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CloudOps360 cannot collect local metrics"
+          description: "The API is up but psutil collection is failing; check the API logs."

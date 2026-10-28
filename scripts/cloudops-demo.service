@@ -1,0 +1,13 @@
+# Demo unit used to try safe service remediation on a host with systemd (WSL2 with systemd=true).
+# Install:  sudo cp scripts/cloudops-demo.service /etc/systemd/system/ && sudo systemctl daemon-reload
+# Start:    sudo systemctl start cloudops-demo
+# Break it: sudo systemctl stop cloudops-demo   (CloudOps360 then reports service_down)
+[Unit]
+Description=CloudOps360 demo service (sleeps forever)
+
+[Service]
+ExecStart=/bin/sleep infinity
+Restart=no
+
+[Install]
+WantedBy=multi-user.target
