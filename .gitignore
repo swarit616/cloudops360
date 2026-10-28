@@ -40,3 +40,6 @@ override.tf.json
 .DS_Store
 Thumbs.db
 docker-compose.override.yml
+
+# Local Alertmanager authentication secret
+/alertmanager/cloudrescue-token

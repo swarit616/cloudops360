@@ -1,0 +1,23 @@
+
+global:
+  resolve_timeout: 5m
+
+route:
+  receiver: cloudrescue
+  group_by:
+    - alertname
+    - job
+    - instance
+  group_wait: 10s
+  group_interval: 30s
+  repeat_interval: 4h
+
+receivers:
+  - name: cloudrescue
+    webhook_configs:
+      - url: https://cloudrescue.onrender.com/api/integrations/alertmanager
+        send_resolved: true
+        http_config:
+          authorization:
+            type: Bearer
+            credentials_file: /etc/alertmanager/cloudrescue-token
