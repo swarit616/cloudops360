@@ -112,7 +112,9 @@ def test_explicit_action_runs_as_preview_even_when_healthy(client):
 )
 def test_arbitrary_input_is_rejected(client, payload):
     assert client.post("/api/remediation/dry-run", json=payload).status_code == 422
-    assert client.post("/api/remediation/execute", json={**payload, "confirm": True}).status_code in (
+    assert client.post(
+        "/api/remediation/execute", json={**payload, "confirm": True}
+    ).status_code in (
         401,
         403,
         422,
@@ -271,7 +273,9 @@ def test_dangerous_cleanup_dirs_are_refused(path):
         validate_cleanup_dir(path)
 
 
-@pytest.mark.parametrize("path", ["/tmp/cloudops360", "/var/log/myapp", "/var/tmp/cloudops360", "/home/alice/tmp"])
+@pytest.mark.parametrize(
+    "path", ["/tmp/cloudops360", "/var/log/myapp", "/var/tmp/cloudops360", "/home/alice/tmp"]
+)
 def test_dedicated_cleanup_dirs_are_accepted(path):
     assert str(validate_cleanup_dir(path)).endswith(path.rsplit("/", 1)[-1])
 

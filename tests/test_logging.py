@@ -10,7 +10,16 @@ from app.logging_config import REDACTED, JsonFormatter, log_event, redact, reque
 
 def format_record(**context):
     logger = logging.getLogger("cloudops360.test")
-    record = logger.makeRecord("cloudops360.test", logging.INFO, __file__, 1, "demo.event", (), None, extra={"event": "demo.event", "context": context})
+    record = logger.makeRecord(
+        "cloudops360.test",
+        logging.INFO,
+        __file__,
+        1,
+        "demo.event",
+        (),
+        None,
+        extra={"event": "demo.event", "context": context},
+    )
     return json.loads(JsonFormatter().format(record))
 
 
@@ -37,7 +46,13 @@ def test_secrets_are_redacted_by_key_and_by_pattern():
         note="key AKIAABCDEFGHIJKLMNOP leaked",
     )
     dumped = json.dumps(line)
-    for secret in ("hunter2", "key-value-1", "secret-value-2", "token.value.3", "AKIAABCDEFGHIJKLMNOP"):
+    for secret in (
+        "hunter2",
+        "key-value-1",
+        "secret-value-2",
+        "token.value.3",
+        "AKIAABCDEFGHIJKLMNOP",
+    ):
         assert secret not in dumped
     assert line["context"]["password"] == REDACTED
     assert line["context"]["nested"]["ok"] == "fine"

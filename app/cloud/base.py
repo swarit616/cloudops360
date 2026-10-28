@@ -87,9 +87,7 @@ class CloudAdapter(ABC):
             provider=self.provider, configured=False, message=message, detail=detail
         )
 
-    def _section(
-        self, label: str, func: Callable[[], T], default: T, warnings: list[str]
-    ) -> T:
+    def _section(self, label: str, func: Callable[[], T], default: T, warnings: list[str]) -> T:
         """Run one collection step; on failure record a warning and keep going."""
         try:
             return func()

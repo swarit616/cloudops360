@@ -80,9 +80,7 @@ class ServiceChecker:
         )
         if result.returncode in (124, 126, 127):
             return "unavailable"
-        props = dict(
-            line.split("=", 1) for line in result.stdout.splitlines() if "=" in line
-        )
+        props = dict(line.split("=", 1) for line in result.stdout.splitlines() if "=" in line)
         if props.get("LoadState") == "not-found":
             return "not-found"
         return props.get("ActiveState") or "unknown"

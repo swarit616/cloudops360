@@ -40,7 +40,9 @@ def diagnostics(
         top_memory = container.collector.top_processes("memory", top)
     except Exception as exc:  # noqa: BLE001
         log_event(logger, logging.ERROR, "diagnostics.failed", error_type=type(exc).__name__)
-        raise HTTPException(status_code=503, detail="Diagnostics are temporarily unavailable") from exc
+        raise HTTPException(
+            status_code=503, detail="Diagnostics are temporarily unavailable"
+        ) from exc
 
     issues = detect_issues(snapshot, container.settings)
     recommendations = list(dict.fromkeys(_RECOMMENDATIONS[i.type] for i in issues))

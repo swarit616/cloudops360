@@ -84,7 +84,13 @@ def test_severity_escalates_with_margin():
 
 def test_only_down_services_raise_issues():
     snap = build_snapshot(
-        services={"a": "active", "b": "inactive", "c": "failed", "d": "not-found", "e": "unavailable"}
+        services={
+            "a": "active",
+            "b": "inactive",
+            "c": "failed",
+            "d": "not-found",
+            "e": "unavailable",
+        }
     )
     issues = detect_issues(snap, Settings())
     assert [(i.type, i.target) for i in issues] == [
@@ -95,7 +101,12 @@ def test_only_down_services_raise_issues():
 
 def test_settings_from_env_reads_thresholds():
     settings = Settings.from_env(
-        {"CPU_THRESHOLD": "70", "MEMORY_THRESHOLD": "75.5", "DISK_THRESHOLD": "90", "LOAD_THRESHOLD": "2"}
+        {
+            "CPU_THRESHOLD": "70",
+            "MEMORY_THRESHOLD": "75.5",
+            "DISK_THRESHOLD": "90",
+            "LOAD_THRESHOLD": "2",
+        }
     )
     assert (settings.cpu_threshold, settings.memory_threshold) == (70.0, 75.5)
     assert (settings.disk_threshold, settings.load_threshold) == (90.0, 2.0)

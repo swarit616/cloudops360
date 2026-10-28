@@ -45,7 +45,13 @@ def create_app(container: AppContainer | None = None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
         container.refresher.start()
-        log_event(logger, logging.INFO, "app.started", version=__version__, **container.settings.public_dict())
+        log_event(
+            logger,
+            logging.INFO,
+            "app.started",
+            version=__version__,
+            **container.settings.public_dict(),
+        )
         yield
         container.refresher.stop()
         log_event(logger, logging.INFO, "app.stopped")
@@ -84,7 +90,9 @@ def create_app(container: AppContainer | None = None) -> FastAPI:
             duration = time.perf_counter() - started
             route = request.scope.get("route")
             path_label = getattr(route, "path", "unmatched")
-            container.metrics.record_http(request.method, path_label, response.status_code, duration)
+            container.metrics.record_http(
+                request.method, path_label, response.status_code, duration
+            )
             response.headers["X-Request-ID"] = request_id
             response.headers["X-Content-Type-Options"] = "nosniff"
             if request.url.path.startswith("/api/"):

@@ -40,7 +40,5 @@ class CloudRefresher:
                 try:
                     adapter.get_overview(force=True)
                 except Exception as exc:  # noqa: BLE001
-                    log_event(
-                        logger, logging.ERROR, "cloud.refresh_failed", error=safe_error(exc)
-                    )
+                    log_event(logger, logging.ERROR, "cloud.refresh_failed", error=safe_error(exc))
             self._stop.wait(self._interval)

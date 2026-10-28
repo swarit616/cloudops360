@@ -122,7 +122,9 @@ class Settings:
 
         extensions = tuple(
             ext if ext.startswith(".") else f".{ext}"
-            for ext in (e.lower() for e in _get_list(env, "CLEANUP_EXTENSIONS", cls.cleanup_extensions))
+            for ext in (
+                e.lower() for e in _get_list(env, "CLEANUP_EXTENSIONS", cls.cleanup_extensions)
+            )
         )
 
         return cls(

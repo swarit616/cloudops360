@@ -44,7 +44,9 @@ class _LocalMetricsCollector:
         try:
             snap = self._system.snapshot(cpu_interval=None)
         except Exception as exc:  # noqa: BLE001 - a scrape must never crash the endpoint
-            log_event(logger, logging.ERROR, "metrics.collect_failed", error_type=type(exc).__name__)
+            log_event(
+                logger, logging.ERROR, "metrics.collect_failed", error_type=type(exc).__name__
+            )
             success.add_metric([], 0.0)
             yield success
             return
@@ -52,7 +54,9 @@ class _LocalMetricsCollector:
         yield success
 
         info = GaugeMetricFamily(
-            "cloudops_info", "Build and host information", labels=["version", "environment", "hostname"]
+            "cloudops_info",
+            "Build and host information",
+            labels=["version", "environment", "hostname"],
         )
         info.add_metric([__version__, self._settings.app_env, snap.hostname], 1.0)
         yield info
@@ -75,7 +79,9 @@ class _LocalMetricsCollector:
         mem = GaugeMetricFamily("cloudops_memory_percent", "Local memory utilization percent")
         mem.add_metric([], snap.memory.percent)
         yield mem
-        mem_bytes = GaugeMetricFamily("cloudops_memory_bytes", "Local memory in bytes", labels=["type"])
+        mem_bytes = GaugeMetricFamily(
+            "cloudops_memory_bytes", "Local memory in bytes", labels=["type"]
+        )
         mem_bytes.add_metric(["total"], float(snap.memory.total_bytes))
         mem_bytes.add_metric(["available"], float(snap.memory.available_bytes))
         mem_bytes.add_metric(["used"], float(snap.memory.used_bytes))
@@ -85,7 +91,9 @@ class _LocalMetricsCollector:
         yield swap
 
         disk_pct = GaugeMetricFamily(
-            "cloudops_disk_percent", "Filesystem utilization percent", labels=["mountpoint", "fstype"]
+            "cloudops_disk_percent",
+            "Filesystem utilization percent",
+            labels=["mountpoint", "fstype"],
         )
         disk_bytes = GaugeMetricFamily(
             "cloudops_disk_bytes", "Filesystem size in bytes", labels=["mountpoint", "type"]
@@ -106,7 +114,9 @@ class _LocalMetricsCollector:
             io_bytes.add_metric(["write"], float(snap.disk_io.write_bytes))
             yield io_bytes
             io_ops = CounterMetricFamily(
-                "cloudops_disk_io_operations", "Disk I/O operations since boot", labels=["direction"]
+                "cloudops_disk_io_operations",
+                "Disk I/O operations since boot",
+                labels=["direction"],
             )
             io_ops.add_metric(["read"], float(snap.disk_io.read_count))
             io_ops.add_metric(["write"], float(snap.disk_io.write_count))
@@ -137,7 +147,9 @@ class _LocalMetricsCollector:
         load.add_metric(["5m"], snap.load.load_5m)
         load.add_metric(["15m"], snap.load.load_15m)
         yield load
-        load_core = GaugeMetricFamily("cloudops_load_per_core", "1-minute load divided by CPU cores")
+        load_core = GaugeMetricFamily(
+            "cloudops_load_per_core", "1-minute load divided by CPU cores"
+        )
         load_core.add_metric([], snap.load.per_core_1m)
         yield load_core
 
@@ -190,7 +202,9 @@ class _CloudMetricsCollector:
             "cloudops_cloud_instances", "Discovered VM instances", labels=["provider", "state"]
         )
         volumes = GaugeMetricFamily(
-            "cloudops_cloud_volumes", "Discovered block volumes / managed disks", labels=["provider"]
+            "cloudops_cloud_volumes",
+            "Discovered block volumes / managed disks",
+            labels=["provider"],
         )
         cpu = GaugeMetricFamily(
             "cloudops_cloud_instance_cpu_percent",
@@ -211,7 +225,9 @@ class _CloudMetricsCollector:
             volumes.add_metric([provider.value], float(len(overview.volumes)))
             for point in overview.metrics:
                 if point.metric.lower().startswith(("cpu", "percentage cpu")):
-                    cpu.add_metric([provider.value, point.resource_id.rsplit("/", 1)[-1]], point.value)
+                    cpu.add_metric(
+                        [provider.value, point.resource_id.rsplit("/", 1)[-1]], point.value
+                    )
         yield configured
         yield instances
         yield volumes

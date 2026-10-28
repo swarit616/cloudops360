@@ -44,8 +44,6 @@ def build_container(
     aws = aws or AwsAdapter(settings)
     azure = azure or AzureAdapter(settings)
     metrics = CloudOpsMetrics(settings, collector, {Provider.AWS: aws, Provider.AZURE: azure})
-    engine = RemediationEngine(
-        settings, collector, checker, on_action=metrics.record_remediation
-    )
+    engine = RemediationEngine(settings, collector, checker, on_action=metrics.record_remediation)
     refresher = CloudRefresher([aws, azure], settings.cloud_refresh_seconds)
     return AppContainer(settings, collector, engine, aws, azure, metrics, refresher)

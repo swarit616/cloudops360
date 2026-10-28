@@ -89,8 +89,12 @@ class StaticCollector:
         self, by: Literal["cpu", "memory"] = "cpu", limit: int = 5
     ) -> list[ProcessInfo]:
         return [
-            ProcessInfo(pid=1, name="busy-proc", username="root", cpu_percent=90.0, memory_percent=5.0),
-            ProcessInfo(pid=2, name="big-proc", username="app", cpu_percent=1.0, memory_percent=40.0),
+            ProcessInfo(
+                pid=1, name="busy-proc", username="root", cpu_percent=90.0, memory_percent=5.0
+            ),
+            ProcessInfo(
+                pid=2, name="big-proc", username="app", cpu_percent=1.0, memory_percent=40.0
+            ),
         ][:limit]
 
 

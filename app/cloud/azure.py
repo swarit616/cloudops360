@@ -246,7 +246,9 @@ class AzureAdapter(CloudAdapter):
         return found
 
     @staticmethod
-    def _cpu_metrics(clients: AzureClients, instances: list[CloudInstance]) -> list[CloudMetricPoint]:
+    def _cpu_metrics(
+        clients: AzureClients, instances: list[CloudInstance]
+    ) -> list[CloudMetricPoint]:
         running = [i for i in instances if i.state == "running"][:_MAX_METRIC_VMS]
         end = datetime.now(UTC)
         timespan = f"{(end - timedelta(minutes=30)).isoformat()}/{end.isoformat()}"

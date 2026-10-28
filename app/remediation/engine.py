@@ -128,7 +128,9 @@ class RemediationEngine:
             summary = "No issues detected; no remediation required"
         else:
             mode = "dry-run" if dry_run else "execution"
-            summary = f"{len(results)} action(s) processed in {mode} mode for {len(issues)} issue(s)"
+            summary = (
+                f"{len(results)} action(s) processed in {mode} mode for {len(issues)} issue(s)"
+            )
         return RemediationReport(
             dry_run=dry_run, issues_detected=len(issues), results=results, summary=summary
         )
